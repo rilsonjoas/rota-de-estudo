@@ -11,11 +11,11 @@ Agenda acadêmica **web-first** para organizar o semestre do estudante: horário
 | **Frontend** | Vite + React + TypeScript + shadcn/ui + PWA | app autenticado (SEO irrelevante), push via service worker, sem conflito SSR/auth (ADR-0002) |
 | **Backend** | Spring Boot (Java 21) + Spring Security + JPA + Flyway | 2ª língua de mercado do autor; caso real de Web/Java para portfólio (ADR-0001) |
 | **Banco** | PostgreSQL | padrão consolidado do autor |
-| **Infra** | Docker Compose · VPS Hetzner · Traefik · GitHub Actions · Sentry · Uptime Kuma | self-host, CI/CD no fluxo, observabilidade |
+| **Infra** | Docker Compose · VPS Hetzner · Traefik · Sentry · Uptime Kuma | self-host, observabilidade |
 
 ## Roadmap
 
-- [ ] **Fase 0 — Setup:** monorepo; Contrato de API desenhado; Postgres via Compose; CI com testes (Vitest/Playwright no front, JUnit/Mockito no api).
+- [ ] **Fase 0 — Setup:** monorepo; Contrato de API desenhado; Postgres via Compose; testes locais (Vitest/Playwright no front, JUnit/Mockito no api).
 - [ ] **Fase 1 — Core:** `usuario` + auth (Google OAuth + e-mail/senha, cookie httpOnly, refresh rotativo); `periodo` (aberto/arquivado pelo aluno); `disciplina`; CRUD `tarefa`/`prova`; grade-tipo semanal + cancelamento por instância; telas **Hoje / Semana / Mês** (mobile-first).
 - [ ] **Fase 2 — Push:** VAPID web push; job cron no Spring (tarefa 24h antes; prova em cascata 7-3-1); preferências por evento; cancelamento silencia o lembrete.
 - [ ] **Fase 3 — Gamificação:** módulo desacoplado (eventos de domínio → XP/nível/streak/conquistas); só recompensa no V1, punição como ponto de extensão.
