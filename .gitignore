@@ -1,0 +1,33 @@
+# node / front
+node_modules/
+dist/
+.pnpm-store/
+front/dist/
+front/node_modules/
+
+# java / api
+api/target/
+*.class
+.mvn/
+
+# env & segredos
+.env
+.env.*
+!.env.example
+
+# logs e idas
+logs/
+*.log
+npm-debug.log*
+
+# ide / os
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# cobertura
+coverage/
+
+# builds
+build/

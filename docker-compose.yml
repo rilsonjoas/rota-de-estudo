@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: rota-estudo-db
+    environment:
+      POSTGRES_USER: rota
+      POSTGRES_PASSWORD: rota
+      POSTGRES_DB: rota_estudo
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rota -d rota_estudo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # api:
+  #   build: ./api
+  #   container_name: rota-estudo-api
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/rota_estudo
+  #     SPRING_DATASOURCE_USERNAME: rota
+  #     SPRING_DATASOURCE_PASSWORD: rota
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
+
+  # front:
+  #   build: ./front
+  #   container_name: rota-estudo-front
+  #   depends_on:
+  #     - api
+  #   ports:
+  #     - "80:80"
+
+volumes:
+  db_data:
