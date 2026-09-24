@@ -12,13 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 21
+      - name: Set up JDK (placeholder)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
-      - name: Run tests (placeholder)
-        working-directory: api
+          cache: maven
+          cache-dependency-path: api/pom.xml
+      - name: Run tests (placeholder — Fase 0)
         run: echo "Fase 0 — scaffold; rodar mvn test quando o módulo existir"
 
   front:
@@ -27,17 +28,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Set up pnpm (placeholder)
+        uses: pnpm/action-setup@v4
         with:
           version: latest
-      - uses: actions/setup-node@v4
+      - name: Set up Node (placeholder)
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: pnpm
           cache-dependency-path: front/pnpm-lock.yaml
-      - name: Install
+      - name: Install (placeholder — Fase 0)
         working-directory: front
-        run: pnpm install --frozen-lockfile
-      - name: Run tests (placeholder)
-        working-directory: front
-        run: echo "Fase 0 — scaffold; rodar vitest quando o app existir"
+        run: echo "Fase 0 — scaffold; rodar pnpm install --frozen-lockfile quando existir"
