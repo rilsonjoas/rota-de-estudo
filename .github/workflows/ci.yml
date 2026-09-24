@@ -8,6 +8,7 @@ on:
 jobs:
   api:
     name: api (Spring Boot)
+    if: hashFiles('api/pom.xml') != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +23,7 @@ jobs:
 
   front:
     name: front (Vite)
+    if: hashFiles('front/pnpm-lock.yaml') != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
