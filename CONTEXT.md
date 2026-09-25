@@ -13,9 +13,13 @@ Glossário acordado do domínio. Use esses termos com precisão no código, nos 
 | `prova` | Avaliação com data e peso. Tem **nota opcional** que o usuário registra — a gamificação reage a "bom resultado" (≥ 7 configurável). | |
 | `horario` | Aula semanal fixa (dia da semana + hora): a **grade-tipo**. Não é um motor de recorrência genérico; é uma lista fixa de slots que se repete toda semana dentro do período. | |
 | `cancelamento` | Exceção por instância: "aula de X cancelada em DD/MM". Some daquele dia no calendário **e silencia o lembrete daquele dia**. Sem "troca de horário" nem "aula extra" no V1. | |
-| `config_notificacao` | Padrões de notificação por evento (janela/horário). | |
+| `config_notificacao` | Padrões de notificação por evento. | `antecedencias_minutos` é uma lista, para suportar tarefa 24h antes e prova em cascata 7-3-1. |
 | `gamificacao` | Módulo isolado no Spring que consome **eventos de domínio** e produz XP/nível/streak/conquistas. V1: só recompensa. **Punição é ponto de extensão** no mesmo módulo. | Nunca acoplar ao CRUD. |
 | `rota-de-estudo` / `study-path` | Nome do produto: Rota de Estudo (pt) / StudyPath (en). | Decisão de i18n — ver ADR-0003. |
+
+## Persistência inicial
+
+A migration `V1__create_core_schema.sql` cria `usuario`, `periodo`, `disciplina`, `tarefa`, `prova`, `horario`, `cancelamento` e `config_notificacao`. O banco de produção é `rota_de_estudo_db`, com role isolada `rota_app`; a definição do schema é sempre versionada pelo Flyway.
 
 ## Indefinições a resolver (não bloquear)
 

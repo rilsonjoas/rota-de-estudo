@@ -28,6 +28,8 @@ Thumbs.db
 
 # cobertura
 coverage/
+front/test-results/
+front/playwright-report/
 
 # builds
 build/

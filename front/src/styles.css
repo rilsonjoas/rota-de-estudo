@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 156 32% 9%;
+    --foreground: 130 25% 94%;
+    --card: 156 28% 12%;
+    --card-foreground: 130 25% 94%;
+    --popover: 156 28% 12%;
+    --popover-foreground: 130 25% 94%;
+    --primary: 141 32% 68%;
+    --primary-foreground: 156 40% 10%;
+    --secondary: 155 20% 20%;
+    --secondary-foreground: 130 25% 94%;
+    --muted: 155 18% 17%;
+    --muted-foreground: 140 12% 70%;
+    --accent: 42 75% 60%;
+    --accent-foreground: 40 30% 10%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 155 20% 26%;
+    --input: 155 20% 26%;
+    --ring: 141 32% 68%;
+    --shell-glow: 155 30% 17%;
+    --shell-online: 141 45% 60%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, hsl(var(--shell-glow)) 0, hsl(var(--background)) 45%);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+.app-shell {
+  width: min(100% - 2rem, 72rem);
+  margin: 0 auto;
+  padding: 1.5rem 0 2rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1;
+}
+
+.connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  color: hsl(var(--secondary-foreground));
+  font-size: 0.75rem;
+}
+
+.connection-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: hsl(var(--accent));
+}
+
+.connection-online .connection-dot {
+  background: hsl(var(--shell-online));
+}
+
+.connection-offline .connection-dot {
+  background: hsl(var(--destructive));
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.35rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  background: hsl(var(--card));
+}
+
+.app-nav a {
+  flex: 1 0 auto;
+  padding: 0.8rem 1rem;
+  border-radius: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-nav a.active {
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
+}
+
+.placeholder-page {
+  margin-top: 1.5rem;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.25rem;
+  background: hsl(var(--card) / 0.82);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.18);
+}
+
+.placeholder-page h2 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+.placeholder-page p:not(.eyebrow) {
+  max-width: 34rem;
+  color: hsl(var(--secondary-foreground));
+  line-height: 1.6;
+}
+
+.placeholder-page button {
+  margin-top: 1.25rem;
+}
+
+.foundation-note {
+  margin: 1rem 0 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.9rem;
+}
+
+@media (min-width: 48rem) {
+  .app-shell {
+    padding-top: 3rem;
+  }
+
+  .app-nav {
+    width: fit-content;
+  }
+
+  .app-nav a {
+    min-width: 8rem;
+  }
+}

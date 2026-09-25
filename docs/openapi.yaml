@@ -1,0 +1,1317 @@
+openapi: 3.0.3
+info:
+  title: Rota de Estudo API
+  version: 0.1.0
+  description: Contrato de integração entre o frontend e a API do StudyPath.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Desenvolvimento local
+  - url: /api/v1
+    description: Mesmo origin por meio do proxy
+security:
+  - cookieAuth: []
+tags:
+  - name: System
+  - name: Auth
+  - name: Periodos
+  - name: Disciplinas
+  - name: Tarefas
+  - name: Provas
+  - name: Horarios
+  - name: Cancelamentos
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      operationId: getHealth
+      security: []
+      summary: Verifica a disponibilidade da API
+      responses:
+        '200':
+          description: API disponível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      operationId: register
+      security: []
+      summary: Cria uma conta individual
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Conta criada
+          headers:
+            Set-Cookie:
+              description: Cookie de sessão httpOnly
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      operationId: login
+      security: []
+      summary: Inicia uma sessão
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Sessão iniciada
+          headers:
+            Set-Cookie:
+              description: Cookie de sessão httpOnly
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      operationId: refreshSession
+      security: []
+      summary: Renova a sessão atual
+      responses:
+        '200':
+          description: Sessão renovada
+          headers:
+            Set-Cookie:
+              description: Cookie de sessão httpOnly rotacionado
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      operationId: logout
+      summary: Revoga a sessão atual
+      responses:
+        '204':
+          description: Sessão revogada
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      operationId: getCurrentUser
+      summary: Retorna o usuário autenticado
+      responses:
+        '200':
+          description: Usuário autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /periodos:
+    get:
+      tags:
+        - Periodos
+      operationId: listPeriodos
+      summary: Lista períodos do usuário
+      parameters:
+        - $ref: '#/components/parameters/IncludeArchived'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de períodos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Periodos
+      operationId: createPeriodo
+      summary: Cria um período
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoRequest'
+      responses:
+        '201':
+          description: Período criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Periodo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /periodos/{periodoId}:
+    parameters:
+      - $ref: '#/components/parameters/PeriodoId'
+    get:
+      tags:
+        - Periodos
+      operationId: getPeriodo
+      summary: Obtém um período
+      responses:
+        '200':
+          description: Período
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Periodo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Periodos
+      operationId: updatePeriodo
+      summary: Atualiza um período
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoRequest'
+      responses:
+        '200':
+          description: Período atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Periodo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Periodos
+      operationId: deletePeriodo
+      summary: Remove um período
+      responses:
+        '204':
+          description: Período removido
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /periodos/{periodoId}/disciplinas:
+    parameters:
+      - $ref: '#/components/parameters/PeriodoId'
+    get:
+      tags:
+        - Disciplinas
+      operationId: listDisciplinas
+      summary: Lista disciplinas de um período
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de disciplinas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisciplinaPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Disciplinas
+      operationId: createDisciplina
+      summary: Cria uma disciplina
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisciplinaRequest'
+      responses:
+        '201':
+          description: Disciplina criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disciplina'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /disciplinas/{disciplinaId}:
+    parameters:
+      - $ref: '#/components/parameters/DisciplinaId'
+    get:
+      tags:
+        - Disciplinas
+      operationId: getDisciplina
+      summary: Obtém uma disciplina
+      responses:
+        '200':
+          description: Disciplina
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disciplina'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Disciplinas
+      operationId: updateDisciplina
+      summary: Atualiza uma disciplina
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisciplinaRequest'
+      responses:
+        '200':
+          description: Disciplina atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disciplina'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Disciplinas
+      operationId: deleteDisciplina
+      summary: Remove uma disciplina
+      responses:
+        '204':
+          description: Disciplina removida
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /disciplinas/{disciplinaId}/tarefas:
+    parameters:
+      - $ref: '#/components/parameters/DisciplinaId'
+    get:
+      tags:
+        - Tarefas
+      operationId: listTarefas
+      summary: Lista tarefas de uma disciplina
+      parameters:
+        - $ref: '#/components/parameters/TaskStatus'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de tarefas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TarefaPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Tarefas
+      operationId: createTarefa
+      summary: Cria uma tarefa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TarefaRequest'
+      responses:
+        '201':
+          description: Tarefa criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarefa'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /tarefas/{tarefaId}:
+    parameters:
+      - $ref: '#/components/parameters/TarefaId'
+    get:
+      tags:
+        - Tarefas
+      operationId: getTarefa
+      summary: Obtém uma tarefa
+      responses:
+        '200':
+          description: Tarefa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarefa'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Tarefas
+      operationId: updateTarefa
+      summary: Atualiza uma tarefa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TarefaRequest'
+      responses:
+        '200':
+          description: Tarefa atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarefa'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Tarefas
+      operationId: deleteTarefa
+      summary: Remove uma tarefa
+      responses:
+        '204':
+          description: Tarefa removida
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /disciplinas/{disciplinaId}/provas:
+    parameters:
+      - $ref: '#/components/parameters/DisciplinaId'
+    get:
+      tags:
+        - Provas
+      operationId: listProvas
+      summary: Lista provas de uma disciplina
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de provas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvaPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Provas
+      operationId: createProva
+      summary: Cria uma prova
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProvaRequest'
+      responses:
+        '201':
+          description: Prova criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prova'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /provas/{provaId}:
+    parameters:
+      - $ref: '#/components/parameters/ProvaId'
+    get:
+      tags:
+        - Provas
+      operationId: getProva
+      summary: Obtém uma prova
+      responses:
+        '200':
+          description: Prova
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prova'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Provas
+      operationId: updateProva
+      summary: Atualiza uma prova
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProvaRequest'
+      responses:
+        '200':
+          description: Prova atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prova'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Provas
+      operationId: deleteProva
+      summary: Remove uma prova
+      responses:
+        '204':
+          description: Prova removida
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /periodos/{periodoId}/horarios:
+    parameters:
+      - $ref: '#/components/parameters/PeriodoId'
+    get:
+      tags:
+        - Horarios
+      operationId: listHorarios
+      summary: Lista a grade-tipo de um período
+      responses:
+        '200':
+          description: Horários do período
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Horario'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Horarios
+      operationId: createHorario
+      summary: Cria um horário semanal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HorarioRequest'
+      responses:
+        '201':
+          description: Horário criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Horario'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /horarios/{horarioId}:
+    parameters:
+      - $ref: '#/components/parameters/HorarioId'
+    get:
+      tags:
+        - Horarios
+      operationId: getHorario
+      summary: Obtém um horário
+      responses:
+        '200':
+          description: Horário
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Horario'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Horarios
+      operationId: updateHorario
+      summary: Atualiza um horário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HorarioRequest'
+      responses:
+        '200':
+          description: Horário atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Horario'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Horarios
+      operationId: deleteHorario
+      summary: Remove um horário
+      responses:
+        '204':
+          description: Horário removido
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /horarios/{horarioId}/cancelamentos:
+    parameters:
+      - $ref: '#/components/parameters/HorarioId'
+    get:
+      tags:
+        - Cancelamentos
+      operationId: listCancelamentos
+      summary: Lista os cancelamentos de um horário
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Cancelamentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cancelamento'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Cancelamentos
+      operationId: createCancelamento
+      summary: Cancela uma instância de aula
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelamentoRequest'
+      responses:
+        '201':
+          description: Cancelamento criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cancelamento'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /cancelamentos/{cancelamentoId}:
+    parameters:
+      - $ref: '#/components/parameters/CancelamentoId'
+    delete:
+      tags:
+        - Cancelamentos
+      operationId: deleteCancelamento
+      summary: Remove um cancelamento
+      responses:
+        '204':
+          description: Cancelamento removido
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: rota_session
+  parameters:
+    PeriodoId:
+      name: periodoId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DisciplinaId:
+      name: disciplinaId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TarefaId:
+      name: tarefaId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProvaId:
+      name: provaId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    HorarioId:
+      name: horarioId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CancelamentoId:
+      name: cancelamentoId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IncludeArchived:
+      name: includeArchived
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    TaskStatus:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/TarefaStatus'
+    From:
+      name: from
+      in: query
+      required: false
+      description: Limite inicial inclusivo em ISO-8601.
+      schema:
+        type: string
+        format: date-time
+    To:
+      name: to
+      in: query
+      required: false
+      description: Limite final exclusivo em ISO-8601.
+      schema:
+        type: string
+        format: date-time
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Unauthorized:
+      description: Sessão ausente ou inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotFound:
+      description: Recurso não encontrado ou não pertencente ao usuário
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Conflict:
+      description: Conflito com um recurso existente
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    TooManyRequests:
+      description: Limite de requisições excedido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - service
+        - version
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+        service:
+          type: string
+          example: rota-de-estudo-api
+        version:
+          type: string
+          example: 0.1.0
+        timestamp:
+          type: string
+          format: date-time
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+        locale:
+          type: string
+          default: pt-BR
+          enum:
+            - pt-BR
+            - en
+        timezone:
+          type: string
+          default: America/Recife
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    AuthResponse:
+      type: object
+      required:
+        - user
+        - expiresAt
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        expiresAt:
+          type: string
+          format: date-time
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - locale
+        - timezone
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        locale:
+          type: string
+          enum:
+            - pt-BR
+            - en
+        timezone:
+          type: string
+          example: America/Recife
+        createdAt:
+          type: string
+          format: date-time
+    PeriodoRequest:
+      type: object
+      required:
+        - name
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        startsOn:
+          type: string
+          format: date
+          nullable: true
+        endsOn:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/PeriodoStatus'
+    Periodo:
+      allOf:
+        - $ref: '#/components/schemas/PeriodoRequest'
+        - type: object
+          required:
+            - id
+            - createdAt
+            - updatedAt
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    PeriodoStatus:
+      type: string
+      enum:
+        - ABERTO
+        - ARQUIVADO
+    DisciplinaRequest:
+      type: object
+      required:
+        - name
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          nullable: true
+    Disciplina:
+      allOf:
+        - $ref: '#/components/schemas/DisciplinaRequest'
+        - type: object
+          required:
+            - id
+            - periodoId
+            - createdAt
+            - updatedAt
+          properties:
+            id:
+              type: string
+              format: uuid
+            periodoId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    TarefaRequest:
+      type: object
+      required:
+        - title
+        - type
+        - priority
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 4000
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TarefaTipo'
+        priority:
+          $ref: '#/components/schemas/Prioridade'
+        status:
+          $ref: '#/components/schemas/TarefaStatus'
+        dueAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        tags:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+    Tarefa:
+      allOf:
+        - $ref: '#/components/schemas/TarefaRequest'
+        - type: object
+          required:
+            - id
+            - disciplinaId
+            - status
+            - createdAt
+            - updatedAt
+          properties:
+            id:
+              type: string
+              format: uuid
+            disciplinaId:
+              type: string
+              format: uuid
+            status:
+              $ref: '#/components/schemas/TarefaStatus'
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    TarefaTipo:
+      type: string
+      enum:
+        - TAREFA
+        - TRABALHO
+        - OUTRO
+    Prioridade:
+      type: string
+      enum:
+        - BAIXA
+        - MEDIA
+        - ALTA
+    TarefaStatus:
+      type: string
+      enum:
+        - PENDENTE
+        - CONCLUIDA
+    ProvaRequest:
+      type: object
+      required:
+        - title
+        - startsAt
+        - weight
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        startsAt:
+          type: string
+          format: date-time
+        weight:
+          type: number
+          minimum: 0
+          maximum: 100
+        grade:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: true
+        notes:
+          type: string
+          maxLength: 4000
+          nullable: true
+    Prova:
+      allOf:
+        - $ref: '#/components/schemas/ProvaRequest'
+        - type: object
+          required:
+            - id
+            - disciplinaId
+            - createdAt
+            - updatedAt
+          properties:
+            id:
+              type: string
+              format: uuid
+            disciplinaId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    HorarioRequest:
+      type: object
+      required:
+        - disciplinaId
+        - weekday
+        - startsAt
+        - endsAt
+      additionalProperties: false
+      properties:
+        disciplinaId:
+          type: string
+          format: uuid
+        weekday:
+          $ref: '#/components/schemas/Weekday'
+        startsAt:
+          type: string
+          format: time
+          example: '08:00'
+        endsAt:
+          type: string
+          format: time
+          example: '09:50'
+    Horario:
+      allOf:
+        - $ref: '#/components/schemas/HorarioRequest'
+        - type: object
+          required:
+            - id
+            - periodoId
+            - createdAt
+            - updatedAt
+          properties:
+            id:
+              type: string
+              format: uuid
+            periodoId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    Weekday:
+      type: string
+      description: MONDAY=1, TUESDAY=2, WEDNESDAY=3, THURSDAY=4, FRIDAY=5, SATURDAY=6, SUNDAY=7.
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
+    CancelamentoRequest:
+      type: object
+      required:
+        - date
+      additionalProperties: false
+      properties:
+        date:
+          type: string
+          format: date
+        reason:
+          type: string
+          maxLength: 500
+          nullable: true
+    Cancelamento:
+      allOf:
+        - $ref: '#/components/schemas/CancelamentoRequest'
+        - type: object
+          required:
+            - id
+            - horarioId
+            - createdAt
+          properties:
+            id:
+              type: string
+              format: uuid
+            horarioId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+    PageMeta:
+      type: object
+      required:
+        - page
+        - size
+        - totalElements
+        - totalPages
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PeriodoPage:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periodo'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    DisciplinaPage:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Disciplina'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    TarefaPage:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tarefa'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    ProvaPage:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prova'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+        - requestId
+        - timestamp
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+        requestId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: object
+          additionalProperties: true

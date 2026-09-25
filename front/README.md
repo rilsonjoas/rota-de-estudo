@@ -1,13 +1,26 @@
 # front/
 
-Frontend **Vite + React + TypeScript + shadcn/ui** (PWA, service worker + web push).
+Frontend **Vite + React + TypeScript + Tailwind + shadcn/ui**.
 
-- **Fase 0:** contrato de API em `docs/api.md`; shell da SPA + roteamento.
+- **Fase 0:** contrato de API em [`../docs/openapi.yaml`](../docs/openapi.yaml), tipos gerados em `src/lib/api.generated.ts`, shell da SPA com rotas Hoje/Semana/Mês, health check da API e base shadcn/ui.
 - **Fase 1:** telas **Hoje / Semana / Mês** (mobile-first, táctil, colisões destacadas, modais de criar/editar); login (Google OAuth priority, e-mail/senha fallback); CRUD de período/disciplina/tarefa/prova/horário + cancelamento.
 - **Fase 2:** inscrição + recepção de web push (VAPID), preferências.
 - **Fase 3:** XP/nível/streak/conquistas na UI.
-- **Fase 4:** i18n EN (chaves já em uso desde o V1, ADR-0003).
+- **Fase 4:** i18n EN (catálogo en já preparado no shell), acessibilidade e profissionalização; a base shadcn/ui já está configurada.
 
-Testes: Vitest + Testing Library; E2E: Playwright. Design system: shadcn/ui (estilo Narniano).
+## Desenvolvimento
+
+```bash
+npm install
+npm run dev
+```
+
+O Vite encaminha `/api` para `VITE_API_PROXY_TARGET` (por padrão, `http://localhost:8080`). Para gerar a imagem servida pelo Nginx:
+
+```bash
+npm run build
+```
+
+Testes: Vitest + Testing Library; E2E: Playwright. Para regenerar os tipos a partir do contrato, rode `npm run generate:api`. Tokens e direção visual estão em [`../docs/design.md`](../docs/design.md).
 
 Ver ADRs em `../docs/adr/` e glossário em `../CONTEXT.md`.
